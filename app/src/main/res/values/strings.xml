@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Calculator</string>
+    <string name="app_name">Calculadora</string>
     <string name="zero">0</string>
     <string name="double_zero">00</string>
     <string name="one">1</string>
@@ -20,4 +20,18 @@
     <string name="plus_minus">\u00B1</string>
     <string name="percentage">\u0025</string>
     <string name="all_clear">AC</string>
+
+    <string name="all_videos">Todos os Vídeos</string>
+    <string name="all_folders">Todas as Pastas</string>
+    <string name="total_videos">Total Vídeos</string>
+    <string name="total_folders">Total Pastas:</string>
+    <string name="exit">Sair</string>
+
+    <string name="video_name">Nome do Vídeo</string>
+    <string name="folder_name">Nome da Pasta</string>
+    <string name="duration">00:00</string>
+    <string name="image">Imagem</string>
+
+    <string name="loading">Carregando...</string>]
+    <string name="semi_colon">:</string>
 </resources>

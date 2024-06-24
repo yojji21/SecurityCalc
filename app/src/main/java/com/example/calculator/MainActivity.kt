@@ -1,15 +1,22 @@
 package com.example.calculator
 
-import android.app.Activity
-import android.health.connect.datatypes.units.Percentage
+import android.Manifest
+import android.Manifest.permission.CAMERA
+import android.Manifest.permission.RECORD_AUDIO
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.graphics.Camera
+import android.os.Build
 import android.os.Bundle
-import androidx.activity.enableEdgeToEdge
+import android.os.Environment
+import android.provider.Settings
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
+import androidx.core.app.ActivityCompat
 import com.example.calculator.databinding.ActivityMainBinding
-import org.w3c.dom.Text
+import java.io.File
+import androidx.camera.core.CameraX
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -21,13 +28,40 @@ class MainActivity : AppCompatActivity() {
     private var result: Double? = null
     private var equation: StringBuilder = StringBuilder().append(ZERO)
 
+    private var sequenciaPressionada = ""
+
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setListeners()
+
+        val videosDir = File(filesDir, "videos")
+        if (!videosDir.exists()) {
+            videosDir.mkdirs()
+        }
+
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                if (!Environment.isExternalStorageManager()) {
+                    val intent = Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION)
+                    startActivity(intent)
+                }
+            }
+        } else {
+            requestRuntimePermissionStorageLegacy()
+        }
+
+
+
     }
+
+
 
     private fun setListeners() {
         for (button in getNumericButtons()) {
@@ -41,12 +75,29 @@ class MainActivity : AppCompatActivity() {
             ButtonSubtraction.setOnClickListener { onOperatorClicked(Operator.SUBTRACTION) }
             ButtonMultiplication.setOnClickListener { onOperatorClicked(Operator.MULTIPLICATION) }
             buttonDivision.setOnClickListener { onOperatorClicked(Operator.DIVISION) }
-            ButtonEquals.setOnClickListener { onEqualsClicked() }
+            ButtonEquals.setOnClickListener {
+                onEqualsClicked()
+                sequenciaPressionada += "="
+                checksequence()
+                sequenciaPressionada = ""
+
+            }
             buttonAllClear.setOnClickListener { onAllClearClicked() }
             buttonPlusMinus.setOnClickListener { onPlusMinusClicked() }
             buttonPercentage.setOnClickListener { onPercentageClicked() }
+            ButtonOne.setOnClickListener { onNumberClicked(numberText = "1") }
+            ButtonTwo.setOnClickListener { onNumberClicked(numberText = "2") }
+            ButtonThree.setOnClickListener { onNumberClicked(numberText = "3") }
+            ButtonFour.setOnClickListener { onNumberClicked(numberText = "4") }
+            ButtonFive.setOnClickListener { onNumberClicked(numberText = "5") }
+            ButtonSix.setOnClickListener { onNumberClicked(numberText = "6") }
+            ButtonSeven.setOnClickListener { onNumberClicked(numberText = "7") }
+            ButtonEight.setOnClickListener { onNumberClicked(numberText = "8") }
+            ButtonNine.setOnClickListener { onNumberClicked(numberText = "9") }
         }
     }
+
+
 
 
     private fun onPercentageClicked() {
@@ -73,6 +124,80 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    //request permisson
+
+    private fun requestRuntimePermissionStorageLegacy(): Boolean{
+        if(ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), 13)
+            return false
+        }
+
+        return true
+    }
+
+    private fun requestRuntimePermissionStorage(): Boolean{
+        if(ActivityCompat.checkSelfPermission(this, Manifest.permission.MANAGE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.MANAGE_EXTERNAL_STORAGE), 12)
+            return false
+        }
+
+        return true
+    }
+
+    private fun requestRuntimePermissionCamera(): Boolean{
+        if(ActivityCompat.checkSelfPermission(this, CAMERA) != PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(this, arrayOf(CAMERA), 11)
+            return false
+        }
+
+        return true
+    }
+
+    private fun requestRuntimePermissionAudio(): Boolean{
+        if(ActivityCompat.checkSelfPermission(this, RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(this, arrayOf(RECORD_AUDIO), 10)
+            return false
+        }
+
+        return true
+    }
+
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+        if (requestCode == 13) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                Toast.makeText(this, "Permission Granted", Toast.LENGTH_SHORT).show()
+            } else {
+                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), 13)
+            }
+        }
+
+        if (requestCode == 1) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission granted
+            } else {
+                // Permission denied
+            }
+        }
+
+        if (requestCode == 11) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                Toast.makeText(this, "Permission Granted", Toast.LENGTH_SHORT).show()
+            } else {
+                ActivityCompat.requestPermissions(this, arrayOf(CAMERA), 13)
+            }
+        }
+        if (requestCode == 10) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                Toast.makeText(this, "Permission Granted", Toast.LENGTH_SHORT).show()
+            } else {
+                ActivityCompat.requestPermissions(this, arrayOf(RECORD_AUDIO), 13)
+            }
+        }
+    }
+
     private fun onPlusMinusClicked() {
         if(equation.startsWith(MINUS)) {
             equation.deleteCharAt(0)
@@ -90,6 +215,8 @@ class MainActivity : AppCompatActivity() {
         result = null
         equation.clear().append(ZERO)
         clearDisplay()
+
+        sequenciaPressionada = ""
     }
 
     private fun onOperatorClicked(operator: Operator) {
@@ -109,6 +236,29 @@ class MainActivity : AppCompatActivity() {
         } else {
             equation.clear().append(ZERO)
         }
+
+    }
+
+    private fun goToSGallery(){
+        val intent = Intent(this, Sgallery::class.java)
+        startActivity(intent)
+    }
+
+    fun checksequence() {
+
+        if (sequenciaPressionada == "632=") {
+            goToSGallery()
+            sequenciaPressionada = ""
+        }
+
+        if (sequenciaPressionada == "478") {
+
+        }
+
+        if (sequenciaPressionada.length >= 4) {
+            sequenciaPressionada = ""
+        }
+
     }
 
     private fun calculate(): Double {
@@ -161,6 +311,8 @@ class MainActivity : AppCompatActivity() {
         setInput()
         updateInputOnDisplay()
 
+        sequenciaPressionada += numberText
+        checksequence()
     }
 
     private fun setInput() {
@@ -232,5 +384,7 @@ class MainActivity : AppCompatActivity() {
         const val ZERO = "0"
         const val DOUBLE_ZERO = "00"
         const val MINUS = "-"
+
+        const val EXTRA_VIDEO_PATH = "EXTRA_VIDEO_PATH"
     }
 }

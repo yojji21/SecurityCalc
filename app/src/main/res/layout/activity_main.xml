@@ -25,7 +25,7 @@
         app:layout_constraintBottom_toBottomOf="@+id/viewDisplayBackground"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
-    
+
     <TextView
         android:id="@+id/textInput"
         android:layout_width="0dp"
